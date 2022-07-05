@@ -18,12 +18,18 @@ public class PAI:MonoBehaviour {
 
         if(distanceToTarget > visibleRange)
             return;
-        
+
         RaycastHit hit;
-        if(Physics.Raycast(transform.position, target.transform.position, out hit, distanceToTarget)) {
-            if(hit.collider.CompareTag("Player")) {
-                
-            }   
+        Debug.DrawRay(transform.position, target.transform.position, Color.red);
+        if(Physics.Raycast(transform.position, target.transform.position, out hit, 25)) {
+            if(!hit.collider.CompareTag("Player"))
+                return;
+
+
         }
+    }
+
+    void MoveTowards() {
+
     }
 }

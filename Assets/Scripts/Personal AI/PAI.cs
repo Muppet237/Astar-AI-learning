@@ -25,6 +25,7 @@ public class PAI:MonoBehaviour {
         if(Physics.Raycast(transform.position, transform.forward, out hit, distanceToTarget)) {
             if(!hit.collider.CompareTag("Player")) {
                 rgbd.velocity = Vector3.zero;
+                return;
             }
 
             rgbd.velocity = transform.forward * movementSpeed;

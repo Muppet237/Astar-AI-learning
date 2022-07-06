@@ -5,27 +5,29 @@ using UnityEngine;
 public class PAI:MonoBehaviour {
 
     public GameObject target;
-    public float visibleRange;
+    public float visibleRange, movementSpeed;
+
+    Rigidbody rgbd;
 
     void Start() {
-
+        rgbd = GetComponent<Rigidbody>();
     }
 
     void Update() {
-
-
         float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
-
         if(distanceToTarget > visibleRange)
             return;
 
+        transform.LookAt(target.transform.position);
+
+        //Debug.DrawRay(transform.position, transform.forward * distanceToTarget, Color.red);
         RaycastHit hit;
-        Debug.DrawRay(transform.position, target.transform.position, Color.red);
-        if(Physics.Raycast(transform.position, target.transform.position, out hit, 25)) {
-            if(!hit.collider.CompareTag("Player"))
-                return;
+        if(Physics.Raycast(transform.position, transform.forward, out hit, distanceToTarget)) {
+            if(!hit.collider.CompareTag("Player")) {
+                rgbd.velocity = Vector3.zero;
+            }
 
-
+            rgbd.velocity = transform.forward * movementSpeed;
         }
     }
 

@@ -5,25 +5,28 @@ using UnityEngine;
 public class PAI:MonoBehaviour {
 
     public GameObject target, pointer;
-    public float visibleRange, movementSpeed, bodyToWall = 1;
+    public float visibleRange, movementSpeed, bodyToWall = 1, bodyThickness = 1;
 
     Rigidbody rgbd;
-    Vector3 cornerOffset, tempVector;
+    Vector3 cornerOffset, tempVectorRight, tempVectorLeft;
     bool lockedOnPlayer = true, foundCorner, findPlayer;
     float distanceToTarget;
 
     void Start() {
         rgbd = GetComponent<Rigidbody>();
-        //RaycastHit hit;
-        //if(Physics.Raycast(transform.position, transform.forward, out hit)) {
-        //    tempVector = hit.point;
-        //}
+        RaycastHit hit;
+        if(Physics.Raycast(transform.position, transform.forward, out hit)) {
+            tempVectorRight = hit.point;
+            tempVectorLeft = hit.point;
+        }
     }
 
     void Update() {
-        Debug.DrawRay(transform.position, transform.forward * distanceToTarget, Color.red);
-
         distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
+        //Debug.DrawRay(transform.position, transform.forward * distanceToTarget, Color.blue);
+        //Debug.DrawRay(transform.position - transform.right * 0.5f, transform.forward * distanceToTarget, Color.red);
+        //return;
+
         if(distanceToTarget > visibleRange)
             return;
 
@@ -58,7 +61,7 @@ public class PAI:MonoBehaviour {
                 return;
             }
         }
-        tempVector = hit.point;
+        tempVectorRight = hit.point;
         findPlayer = false;
         FindCorner();
     }
@@ -68,7 +71,7 @@ public class PAI:MonoBehaviour {
         if(Physics.Raycast(transform.position, transform.forward, out hit, distanceToTarget)) {
             if(!hit.collider.CompareTag("Player")) {
                 rgbd.velocity = Vector3.zero;
-                tempVector = hit.point;
+                tempVectorRight = hit.point;
                 lockedOnPlayer = false;
                 FindCorner();
                 return;
@@ -81,21 +84,23 @@ public class PAI:MonoBehaviour {
         float holdAngle = transform.eulerAngles.y;
 
         RaycastHit hitFind;
-        for(float i = 0.25f; i <= 90; i += 0.25f) {
+        for(float i = 0; i <= 180; i += 0.25f) {
             transform.rotation = Quaternion.Euler(0, holdAngle + i, 0);
             if(Physics.Raycast(transform.position, transform.forward, out hitFind)) {
-                if(Vector3.Distance(tempVector, hitFind.point) > 0.1) {
-                    //Debug.Log(hitFind.point);
-                    Instantiate(pointer, hitFind.point, Quaternion.identity);
-                    cornerOffset = tempVector + Vector3.right * bodyToWall;
+                //Instantiate(pointer, hitFind.point, Quaternion.identity);
+                //Debug.Log(hitFind.point);
+                if(Vector3.Distance(tempVectorRight, hitFind.point) > 0.1) {
+                    transform.rotation = Quaternion.Euler(0, holdAngle + i + bodyToWall, 0);
+                    cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
+                    Instantiate(pointer, cornerOffset, Quaternion.identity);
                     foundCorner = true;
                     break;
                 }
-                tempVector = hitFind.point;
-            } else if(Vector3.Distance(tempVector, hitFind.point) > 0.1) {
-                //Debug.Log(hitFind.point);
-                Instantiate(pointer, hitFind.point, Quaternion.identity);
-                cornerOffset = tempVector + Vector3.right * bodyToWall;
+                tempVectorRight = hitFind.point;
+            } else if(Vector3.Distance(tempVectorRight, hitFind.point) > 0.1) {
+                transform.rotation = Quaternion.Euler(0, holdAngle + i + bodyToWall, 0);
+                cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
+                Instantiate(pointer, cornerOffset, Quaternion.identity);
                 foundCorner = true;
                 break;
             }
@@ -103,7 +108,7 @@ public class PAI:MonoBehaviour {
     }
 
     void MoveTowards(Vector3 _target) {
-        //Debug.Log(_target);
+        Debug.Log(_target);
         transform.LookAt(_target);
         rgbd.velocity = transform.forward * movementSpeed;
     }

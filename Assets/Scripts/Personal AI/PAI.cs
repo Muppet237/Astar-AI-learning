@@ -14,10 +14,10 @@ public class PAI:MonoBehaviour {
 
     void Start() {
         rgbd = GetComponent<Rigidbody>();
-        RaycastHit hit;
-        if(Physics.Raycast(transform.position, transform.forward, out hit)) {
-            tempVector = hit.point;
-        }
+        //RaycastHit hit;
+        //if(Physics.Raycast(transform.position, transform.forward, out hit)) {
+        //    tempVector = hit.point;
+        //}
     }
 
     void Update() {
@@ -33,7 +33,7 @@ public class PAI:MonoBehaviour {
         }
 
         if(foundCorner) {
-            if(Vector3.Distance(cornerOffset, transform.position) < 0.1f) {
+            if(Vector3.Distance(cornerOffset, transform.position) < 0.2f) {
                 foundCorner = false;
                 findPlayer = true;
                 return;
@@ -79,19 +79,25 @@ public class PAI:MonoBehaviour {
 
     void FindCorner() {
         float holdAngle = transform.eulerAngles.y;
-        
+
         RaycastHit hitFind;
-        for(float i = 1; i <= 90; i += 0.25f) {
+        for(float i = 0.25f; i <= 90; i += 0.25f) {
             transform.rotation = Quaternion.Euler(0, holdAngle + i, 0);
             if(Physics.Raycast(transform.position, transform.forward, out hitFind)) {
                 if(Vector3.Distance(tempVector, hitFind.point) > 0.1) {
+                    //Debug.Log(hitFind.point);
+                    Instantiate(pointer, hitFind.point, Quaternion.identity);
                     cornerOffset = tempVector + Vector3.right * bodyToWall;
                     foundCorner = true;
-                    Debug.Log(cornerOffset);
-                    //Instantiate(pointer, cornerOffset, Quaternion.identity);
                     break;
                 }
                 tempVector = hitFind.point;
+            } else if(Vector3.Distance(tempVector, hitFind.point) > 0.1) {
+                //Debug.Log(hitFind.point);
+                Instantiate(pointer, hitFind.point, Quaternion.identity);
+                cornerOffset = tempVector + Vector3.right * bodyToWall;
+                foundCorner = true;
+                break;
             }
         }
     }

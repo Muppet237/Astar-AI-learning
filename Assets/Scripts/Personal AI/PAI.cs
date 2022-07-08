@@ -13,8 +13,11 @@ public class PAI:MonoBehaviour {
     float distanceToTarget, marginDistance;
 
     void Start() {
+        Application.targetFrameRate = 120;
         rgbd = GetComponent<Rigidbody>();
-        //transform.LookAt(target.transform.position);
+        transform.LookAt(target.transform.position);
+        Debug.DrawRay(transform.position, transform.forward, Color.blue);
+        Debug.DrawRay(transform.position - transform.right * 0.5f, transform.forward, Color.red);
         RaycastHit hit;
         if(Physics.Raycast(transform.position, transform.forward, out hit)) {
             tempVectorRight = hit.point;
@@ -61,6 +64,12 @@ public class PAI:MonoBehaviour {
                 lockedOnPlayer = true;
                 findPlayer = false;
                 return;
+            } else {
+                Debug.Log(Vector3.Distance(transform.position, hit.point));
+                if(Vector3.Distance(transform.position, hit.point) > 5) {
+                    MoveTowards(hit.point);
+                    return;
+                }
             }
         }
         tempVectorRight = hit.point;
@@ -72,11 +81,16 @@ public class PAI:MonoBehaviour {
         RaycastHit hit;
         if(Physics.Raycast(transform.position, transform.forward, out hit, distanceToTarget)) {
             if(!hit.collider.CompareTag("Player")) {
-                rgbd.velocity = Vector3.zero;
-                tempVectorRight = hit.point;
-                lockedOnPlayer = false;
-                FindCorner();
-                return;
+                Debug.Log(Vector3.Distance(transform.position, hit.point));
+                if(Vector3.Distance(transform.position, hit.point) > 5) {
+                    MoveTowards(hit.point);
+                } else {
+                    rgbd.velocity = Vector3.zero;
+                    tempVectorRight = hit.point;
+                    lockedOnPlayer = false;
+                    FindCorner();
+                    return;
+                }
             }
         }
         MoveTowards(target.transform.position);
@@ -86,7 +100,7 @@ public class PAI:MonoBehaviour {
         float holdAngle = transform.eulerAngles.y;
 
         RaycastHit hitFind, hitFindLeft;
-        for(float i = 0.25f; i <= 180; i += 0.25f) {
+        for(float i = 0.25f; i <= 90; i += 0.25f) {
             transform.rotation = Quaternion.Euler(0, holdAngle + i, 0);
             //yield return new WaitForSeconds(0.05f);
             if(Physics.Raycast(transform.position, transform.forward, out hitFind)) {
@@ -96,7 +110,7 @@ public class PAI:MonoBehaviour {
                         transform.rotation = Quaternion.Euler(0, holdAngle + i + x, 0);
                         //yield return new WaitForSeconds(0.25f);
                         if(Physics.Raycast(transform.position - transform.right * bodyThickness, transform.forward, out hitFindLeft)) {
-                            Debug.Log(Vector3.Distance(tempVectorRight, hitFindLeft.point));
+                            //Debug.Log(Vector3.Distance(tempVectorRight, hitFindLeft.point));
                             if(Vector3.Distance(hitFindLeft.point, tempVectorRight) < marginDistance) {
                                 transform.rotation = Quaternion.Euler(0, holdAngle + i + x + bodyToWall, 0);
                                 cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
@@ -109,7 +123,6 @@ public class PAI:MonoBehaviour {
                     break;
                 }
                 marginDistance = Vector3.Distance(tempVectorRight, hitFind.point);
-                //Debug.Log(marginDistance);
                 tempVectorRight = hitFind.point;
             } /*else if(Vector3.Distance(tempVectorRight, hitFind.point) > 0.1) {*/
             //    for(float x = 0.25f; x <= 25; x += 0.25f) {

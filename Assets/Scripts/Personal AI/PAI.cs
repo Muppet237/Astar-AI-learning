@@ -10,15 +10,17 @@ public class PAI:MonoBehaviour {
     Rigidbody rgbd;
     Vector3 cornerOffset, tempVectorRight, tempVectorLeft;
     bool lockedOnPlayer = true, foundCorner, findPlayer;
-    float distanceToTarget;
+    float distanceToTarget, marginDistance;
 
     void Start() {
         rgbd = GetComponent<Rigidbody>();
+        //transform.LookAt(target.transform.position);
         RaycastHit hit;
         if(Physics.Raycast(transform.position, transform.forward, out hit)) {
             tempVectorRight = hit.point;
             tempVectorLeft = hit.point;
         }
+        //StartCoroutine(FindCorner());
     }
 
     void Update() {
@@ -86,12 +88,16 @@ public class PAI:MonoBehaviour {
         RaycastHit hitFind, hitFindLeft;
         for(float i = 0.25f; i <= 180; i += 0.25f) {
             transform.rotation = Quaternion.Euler(0, holdAngle + i, 0);
+            //yield return new WaitForSeconds(0.05f);
             if(Physics.Raycast(transform.position, transform.forward, out hitFind)) {
+                //Instantiate(pointer, hitFind.point, Quaternion.identity);
                 if(Vector3.Distance(tempVectorRight, hitFind.point) > 0.1) {
-                    for(float x = 0.25f; x <= 25; x += 0.25f) {
+                    for(float x = 0.25f; x <= 45; x += 0.25f) {
                         transform.rotation = Quaternion.Euler(0, holdAngle + i + x, 0);
+                        //yield return new WaitForSeconds(0.25f);
                         if(Physics.Raycast(transform.position - transform.right * bodyThickness, transform.forward, out hitFindLeft)) {
-                            if(Vector3.Distance(tempVectorRight, hitFindLeft.point) < 0.02f) {
+                            Debug.Log(Vector3.Distance(tempVectorRight, hitFindLeft.point));
+                            if(Vector3.Distance(hitFindLeft.point, tempVectorRight) < marginDistance) {
                                 transform.rotation = Quaternion.Euler(0, holdAngle + i + x + bodyToWall, 0);
                                 cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
                                 Instantiate(pointer, cornerOffset, Quaternion.identity);
@@ -102,22 +108,24 @@ public class PAI:MonoBehaviour {
                     }
                     break;
                 }
+                marginDistance = Vector3.Distance(tempVectorRight, hitFind.point);
+                //Debug.Log(marginDistance);
                 tempVectorRight = hitFind.point;
-            } else if(Vector3.Distance(tempVectorRight, hitFind.point) > 0.1) {
-                for(float x = 0.25f; x <= 25; x += 0.25f) {
-                    transform.rotation = Quaternion.Euler(0, holdAngle + i + x, 0);
-                    if(Physics.Raycast(transform.position - transform.right * bodyThickness, transform.forward, out hitFindLeft)) {
-                        if(Vector3.Distance(tempVectorRight, hitFindLeft.point) < 0.02f) {
-                            transform.rotation = Quaternion.Euler(0, holdAngle + i + x + bodyToWall, 0);
-                            cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
-                            Instantiate(pointer, cornerOffset, Quaternion.identity);
-                            foundCorner = true;
-                            break;
-                        }
-                    }
-                }
-                break;
-            }
+            } /*else if(Vector3.Distance(tempVectorRight, hitFind.point) > 0.1) {*/
+            //    for(float x = 0.25f; x <= 25; x += 0.25f) {
+            //        transform.rotation = Quaternion.Euler(0, holdAngle + i + x, 0);
+            //        if(Physics.Raycast(transform.position - transform.right * bodyThickness, transform.forward, out hitFindLeft)) {
+            //            if(Vector3.Distance(tempVectorRight, hitFindLeft.point) < 0.025f) {
+            //                transform.rotation = Quaternion.Euler(0, holdAngle + i + x + bodyToWall, 0);
+            //                cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
+            //                Instantiate(pointer, cornerOffset, Quaternion.identity);
+            //                foundCorner = true;
+            //                break;
+            //            }
+            //        }
+            //    }
+            //    break;
+            //}
         }
     }
 

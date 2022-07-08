@@ -23,8 +23,8 @@ public class PAI:MonoBehaviour {
 
     void Update() {
         distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
-        //Debug.DrawRay(transform.position, transform.forward * distanceToTarget, Color.blue);
-        //Debug.DrawRay(transform.position - transform.right * 0.5f, transform.forward * distanceToTarget, Color.red);
+        Debug.DrawRay(transform.position, transform.forward * distanceToTarget, Color.blue);
+        Debug.DrawRay(transform.position - transform.right * 0.5f, transform.forward * distanceToTarget, Color.red);
         //return;
 
         if(distanceToTarget > visibleRange)
@@ -83,32 +83,46 @@ public class PAI:MonoBehaviour {
     void FindCorner() {
         float holdAngle = transform.eulerAngles.y;
 
-        RaycastHit hitFind;
-        for(float i = 0; i <= 180; i += 0.25f) {
+        RaycastHit hitFind, hitFindLeft;
+        for(float i = 0.25f; i <= 180; i += 0.25f) {
             transform.rotation = Quaternion.Euler(0, holdAngle + i, 0);
             if(Physics.Raycast(transform.position, transform.forward, out hitFind)) {
-                //Instantiate(pointer, hitFind.point, Quaternion.identity);
-                //Debug.Log(hitFind.point);
                 if(Vector3.Distance(tempVectorRight, hitFind.point) > 0.1) {
-                    transform.rotation = Quaternion.Euler(0, holdAngle + i + bodyToWall, 0);
-                    cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
-                    Instantiate(pointer, cornerOffset, Quaternion.identity);
-                    foundCorner = true;
+                    for(float x = 0.25f; x <= 25; x += 0.25f) {
+                        transform.rotation = Quaternion.Euler(0, holdAngle + i + x, 0);
+                        if(Physics.Raycast(transform.position - transform.right * bodyThickness, transform.forward, out hitFindLeft)) {
+                            if(Vector3.Distance(tempVectorRight, hitFindLeft.point) < 0.02f) {
+                                transform.rotation = Quaternion.Euler(0, holdAngle + i + x + bodyToWall, 0);
+                                cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
+                                Instantiate(pointer, cornerOffset, Quaternion.identity);
+                                foundCorner = true;
+                                break;
+                            }
+                        }
+                    }
                     break;
                 }
                 tempVectorRight = hitFind.point;
             } else if(Vector3.Distance(tempVectorRight, hitFind.point) > 0.1) {
-                transform.rotation = Quaternion.Euler(0, holdAngle + i + bodyToWall, 0);
-                cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
-                Instantiate(pointer, cornerOffset, Quaternion.identity);
-                foundCorner = true;
+                for(float x = 0.25f; x <= 25; x += 0.25f) {
+                    transform.rotation = Quaternion.Euler(0, holdAngle + i + x, 0);
+                    if(Physics.Raycast(transform.position - transform.right * bodyThickness, transform.forward, out hitFindLeft)) {
+                        if(Vector3.Distance(tempVectorRight, hitFindLeft.point) < 0.02f) {
+                            transform.rotation = Quaternion.Euler(0, holdAngle + i + x + bodyToWall, 0);
+                            cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
+                            Instantiate(pointer, cornerOffset, Quaternion.identity);
+                            foundCorner = true;
+                            break;
+                        }
+                    }
+                }
                 break;
             }
         }
     }
 
     void MoveTowards(Vector3 _target) {
-        Debug.Log(_target);
+        //Debug.Log(_target);
         transform.LookAt(_target);
         rgbd.velocity = transform.forward * movementSpeed;
     }

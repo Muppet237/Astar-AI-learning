@@ -112,8 +112,8 @@ public class PAI:MonoBehaviour {
                             //Debug.Log(Vector3.Distance(tempVectorRight, hitFindLeft.point));
                             if(Vector3.Distance(hitFindLeft.point, tempVectorRight) < marginDistance) {
                                 transform.rotation = Quaternion.Euler(0, holdAngle + i + x + bodyToWall, 0);
-                                cornerOffset = transform.position + (transform.forward * 1.1f) * Vector3.Distance(transform.position, tempVectorRight);
-                                Instantiate(pointer, cornerOffset, Quaternion.identity);
+                                cornerOffset = transform.position + (transform.forward * 1.2f) * Vector3.Distance(transform.position, tempVectorRight);
+                                //Instantiate(pointer, cornerOffset, Quaternion.identity);
                                 foundCorner = true;
                                 break;
                             }
@@ -132,8 +132,8 @@ public class PAI:MonoBehaviour {
                             //Debug.Log(Vector3.Distance(tempVectorRight, hitFindLeft.point));
                             if(Vector3.Distance(hitFindLeft.point, tempVectorRight) < marginDistance) {
                                 transform.rotation = Quaternion.Euler(0, holdAngle + i + x + bodyToWall, 0);
-                                cornerOffset = transform.position + (transform.forward * 1.1f) * Vector3.Distance(transform.position, tempVectorRight);
-                                Instantiate(pointer, cornerOffset, Quaternion.identity);
+                                cornerOffset = transform.position + (transform.forward * 1.2f) * Vector3.Distance(transform.position, tempVectorRight);
+                                //Instantiate(pointer, cornerOffset, Quaternion.identity);
                                 foundCorner = true;
                                 break;
                             }

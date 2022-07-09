@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RandomMovement:MonoBehaviour {
 
-    float speed = 2, raidus = 20; 
+    public float speed, raidus; 
 
     void Update() {
         transform.position = new Vector3(Mathf.Cos(Time.time * speed) * raidus, transform.position.y, Mathf.Sin(Time.time * speed) * raidus);

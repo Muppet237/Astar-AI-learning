@@ -65,7 +65,6 @@ public class PAI:MonoBehaviour {
                 findPlayer = false;
                 return;
             } else {
-                Debug.Log(Vector3.Distance(transform.position, hit.point));
                 if(Vector3.Distance(transform.position, hit.point) > 5) {
                     MoveTowards(hit.point);
                     return;
@@ -81,7 +80,7 @@ public class PAI:MonoBehaviour {
         RaycastHit hit;
         if(Physics.Raycast(transform.position, transform.forward, out hit, distanceToTarget)) {
             if(!hit.collider.CompareTag("Player")) {
-                Debug.Log(Vector3.Distance(transform.position, hit.point));
+                //Debug.Log(Vector3.Distance(transform.position, hit.point));
                 if(Vector3.Distance(transform.position, hit.point) > 5) {
                     MoveTowards(hit.point);
                 } else {
@@ -113,7 +112,7 @@ public class PAI:MonoBehaviour {
                             //Debug.Log(Vector3.Distance(tempVectorRight, hitFindLeft.point));
                             if(Vector3.Distance(hitFindLeft.point, tempVectorRight) < marginDistance) {
                                 transform.rotation = Quaternion.Euler(0, holdAngle + i + x + bodyToWall, 0);
-                                cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
+                                cornerOffset = transform.position + (transform.forward * 1.1f) * Vector3.Distance(transform.position, tempVectorRight);
                                 Instantiate(pointer, cornerOffset, Quaternion.identity);
                                 foundCorner = true;
                                 break;
@@ -124,21 +123,25 @@ public class PAI:MonoBehaviour {
                 }
                 marginDistance = Vector3.Distance(tempVectorRight, hitFind.point);
                 tempVectorRight = hitFind.point;
-            } /*else if(Vector3.Distance(tempVectorRight, hitFind.point) > 0.1) {*/
-            //    for(float x = 0.25f; x <= 25; x += 0.25f) {
-            //        transform.rotation = Quaternion.Euler(0, holdAngle + i + x, 0);
-            //        if(Physics.Raycast(transform.position - transform.right * bodyThickness, transform.forward, out hitFindLeft)) {
-            //            if(Vector3.Distance(tempVectorRight, hitFindLeft.point) < 0.025f) {
-            //                transform.rotation = Quaternion.Euler(0, holdAngle + i + x + bodyToWall, 0);
-            //                cornerOffset = transform.position + transform.forward * Vector3.Distance(transform.position, tempVectorRight);
-            //                Instantiate(pointer, cornerOffset, Quaternion.identity);
-            //                foundCorner = true;
-            //                break;
-            //            }
-            //        }
-            //    }
-            //    break;
-            //}
+            } else {
+                if (Vector3.Distance(tempVectorRight, hitFind.point) > 0.1) {
+                    for(float x = 0.25f; x <= 45; x += 0.25f) {
+                        transform.rotation = Quaternion.Euler(0, holdAngle + i + x, 0);
+                        //yield return new WaitForSeconds(0.25f);
+                        if(Physics.Raycast(transform.position - transform.right * bodyThickness, transform.forward, out hitFindLeft)) {
+                            //Debug.Log(Vector3.Distance(tempVectorRight, hitFindLeft.point));
+                            if(Vector3.Distance(hitFindLeft.point, tempVectorRight) < marginDistance) {
+                                transform.rotation = Quaternion.Euler(0, holdAngle + i + x + bodyToWall, 0);
+                                cornerOffset = transform.position + (transform.forward * 1.1f) * Vector3.Distance(transform.position, tempVectorRight);
+                                Instantiate(pointer, cornerOffset, Quaternion.identity);
+                                foundCorner = true;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
         }
     }
 
